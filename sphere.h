@@ -25,8 +25,6 @@ class sphere : public hittable {
         bbox = aabb(box1, box2);
     }
 
-
-
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
       point3 current_center = center.at(r.time());
       vec3 oc = current_center - r.origin();

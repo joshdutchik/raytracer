@@ -8,7 +8,6 @@
 #include <memory>
 #include <random>
 
-
 // C++ Std Usings
 
 using std::make_shared;
@@ -41,11 +40,21 @@ inline int random_int(int min, int max) {
     return int(random_double(min, max+1));
 }
 
+void clearLine() {
+    std::cout << "\r" << std::string(50, ' ') << "\r";
+}
+
 // Common Headers
 
 #include "color.h"
 #include "interval.h"
 #include "ray.h"
 #include "vec3.h"
+#include "debugger.h"
+#include "material.h"
+#include "texture.h"
+#include "camera.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
 #endif

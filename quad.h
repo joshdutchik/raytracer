@@ -61,13 +61,22 @@ class quad : public hittable {
         interval unit_interval = interval(0, 1);
         // Given the hit point in plane coordinates, return false if it is outside the
         // primitive, otherwise set the hit record UV coordinates and return true.
-
-        if (!unit_interval.contains(a) || !unit_interval.contains(b))
+        /*
+        if (!unit_interval.contains(a) || !unit_interval.contains(b)) {
             return false;
+        }
+        */
+        if (a > 0 && b > 0 && (a + b) < 1) {
+            rec.u = a;
+            rec.v = b;
+            return true;
+        }
+    
+        //rec.u = a;
+        //rec.v = b;
+        //return true;
 
-        rec.u = a;
-        rec.v = b;
-        return true;
+        return false;
     }
 
   private:

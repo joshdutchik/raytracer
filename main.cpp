@@ -8,8 +8,11 @@
 #include "material.h"
 #include "quad.h"
 #include "sphere.h"
+#include "triangle.h"
 #include "texture.h"
+#include "menu.h"
 
+/*
 void bouncing_spheres() {
     hittable_list world;
 
@@ -308,15 +311,75 @@ void cornell_smoke() {
     cam.render(world);
 }
 
+void triangle_intersections() {
+    hittable_list world;
+
+    auto triangle_texture = make_shared<diffuse_light>(color(4,4,4));
+
+    auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+    world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
+
+    world.add(make_shared<triangle>(point3(3,-3,3), point3(3,-3,0), point3(-3,-3,0), triangle_texture));
+
+    camera cam;
+
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+    cam.background        = color(0.70, 0.80, 1.00);
+
+    cam.vfov     = 80;
+    cam.lookfrom = point3(0,0,9);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world);
+}
+*/
+
 int main() {
-    switch (8) {
-        case 1: bouncing_spheres();  break;
-        case 2: checkered_spheres(); break;
-        case 3:  earth();             break;
-        case 4:  perlin_spheres();     break;
-        case 5:  quads();              break;
-        case 6:  simple_light();       break;
-        case 7:  cornell_box();        break;
-        case 8:  cornell_smoke();      break;
+    // A camera with configurable position, orientation, and field of view
+    // Anti-aliasing
+    // Ray/sphere intersections
+    // Ray/triangle intersections
+    // The ability to load textures (file format(s) of your choice; may use third-party libraries)
+    // Textured spheres and triangles
+    // The ability to load and render triangle meshes (file format(s) of your choice; may use third-party libraries for loading)
+    // A spatial subdivision acceleration structure of your choice
+    // Specular, diffuse, and dielectric materials (per first volume of Ray Tracing in One Weekend series)
+    // Emissive materials (lights)
+
+    int choice = 0;
+
+    while (choice != 5)
+    {
+        displayStarterMenu();
+        std::cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            displayBFMenu();
+            break;
+        case 2:
+            displayEFMenu();
+            break;
+        case 3:
+            displayFCMenu();
+            break;
+        case 4:
+            displayRandomMenu();
+            break;
+        case 5:
+            std::cout << "EXITING...";
+            break;
+        default:
+            std::cout << "Invalid choice, please select a valid option: ";
+        }
     }
+
+    return 0;
 }
