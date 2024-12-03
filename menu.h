@@ -9,10 +9,8 @@ inline void displayStarterMenu()
     std::cout << "===== Josh Dutchik's COMS 336 Raytracer =====" << std::endl;
     std::cout << "1: Basic Functionalites" << std::endl;
     std::cout << "2: Extra Functionalites" << std::endl;
-    std::cout << "3: Functionalites Combined" << std::endl;
-    std::cout << "4: Random Things I created" << std::endl;
-    std::cout << "5: Quit" << std::endl;
-    std::cout << "Select an option (1-5): ";
+    std::cout << "3: Quit" << std::endl;
+    std::cout << "Select an option (1-3): ";
 }
 
 inline void BFOptions()
@@ -46,7 +44,9 @@ inline void BFOptions()
             triangle_intersections();
             break;
         case 5:
-            // need
+            std::cout << "Textured spheres and triangles";
+            std::cout << "\n";
+            load_textures();
             break;
         case 6:
             // need
@@ -82,14 +82,12 @@ inline void displayBFMenu()
     std::cout << "2: Anti-aliasing" << std::endl;
     std::cout << "3: Ray/sphere intersections" << std::endl;
     std::cout << "4: Ray/triangle intersections" << std::endl;
-    std::cout << "5: Load textures" << std::endl;
-    std::cout << "6: Textured spheres and triangles" << std::endl;
-    std::cout << "7: Load and render triangle meshes" << std::endl;
-    std::cout << "8: Spatial subdivision acceleration structure" << std::endl;
-    std::cout << "9: Specular, diffuse, and dielectric materials" << std::endl;
-    std::cout << "10: Emissive materials" << std::endl;
-    std::cout << "11: Back" << std::endl;
-    std::cout << "Select an option (1-11): ";
+    std::cout << "5: Textured spheres and triangles" << std::endl;
+    std::cout << "6: Load and render triangle meshes" << std::endl;
+    std::cout << "7: Specular, diffuse, and dielectric materials" << std::endl;
+    std::cout << "8: Emissive materials" << std::endl;
+    std::cout << "9: Back" << std::endl;
+    std::cout << "Select an option (1-9): ";
 
     BFOptions();
 }
@@ -123,65 +121,6 @@ inline void EFOptions(int choice)
         break;
     case 5:
         displayStarterMenu();
-        break;
-    default:
-        std::cout << "Invalid choice, please select a valid option." << std::endl;
-    }
-}
-
-inline void displayFCMenu()
-{
-    std::cout << "===== Functionalites Combined =====" << std::endl;
-    std::cout << "4. Back" << std::endl;
-    std::cout << "Select an option (1-4): ";
-}
-
-inline void FCOptions(int choice)
-{
-    switch (choice)
-    {
-    case 1:
-        displayBFMenu();
-        break;
-    case 2:
-        displayEFMenu();
-        break;
-    case 3:
-        displayFCMenu();
-        break;
-    case 4:
-        displayStarterMenu();
-        break;
-    default:
-        std::cout << "Invalid choice, please select a valid option." << std::endl;
-    }
-}
-
-inline void displayRandomMenu()
-{
-    std::cout << "===== Random Creations =====" << std::endl;
-    std::cout << "1. Random 1" << std::endl;
-    std::cout << "2. Random 2" << std::endl;
-    std::cout << "3. Random 3" << std::endl;
-    std::cout << "4. Back" << std::endl;
-    std::cout << "Select an option (1-4): ";
-}
-
-inline void randomOptions(int choice)
-{
-    switch (choice)
-    {
-    case 1:
-        // need
-        break;
-    case 2:
-        // need
-        break;
-    case 3:
-        // need
-        break;
-    case 4:
-        // need
         break;
     default:
         std::cout << "Invalid choice, please select a valid option." << std::endl;

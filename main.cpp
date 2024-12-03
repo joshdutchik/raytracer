@@ -354,7 +354,7 @@ int main() {
 
     int choice = 0;
 
-    while (choice != 5)
+    while (choice != 3)
     {
         displayStarterMenu();
         std::cin >> choice;
@@ -368,12 +368,6 @@ int main() {
             displayEFMenu();
             break;
         case 3:
-            displayFCMenu();
-            break;
-        case 4:
-            displayRandomMenu();
-            break;
-        case 5:
             std::cout << "EXITING...";
             break;
         default:
