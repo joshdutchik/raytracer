@@ -1,11 +1,7 @@
 #ifndef DEBUGGER_H
 #define DEBUGGER_H
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <ctime>
+#include "utility.h"
 
 class debugger
 {

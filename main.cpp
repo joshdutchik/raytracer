@@ -1,20 +1,9 @@
-#include "rtweekend.h"
-
-#include "bvh.h"
-#include "camera.h"
-#include "constant_medium.h"
-#include "hittable.h"
-#include "hittable_list.h"
-#include "material.h"
-#include "quad.h"
-#include "sphere.h"
-#include "triangle.h"
-#include "texture.h"
+#include "utility.h"
 #include "menu.h"
 
 /*
 void bouncing_spheres() {
-    hittable_list world;
+    world world;
 
     auto checker = make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(checker)));
@@ -37,16 +26,16 @@ void bouncing_spheres() {
                     auto center2 = center + vec3(0, random_double(0,.5), 0);
                     world.add(make_shared<sphere>(center, center2, 0.2, sphere_material));
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
-                } 
-                
+                }
+
                 else if (choose_mat < 0.95) {
-                    // metal
+                    // specular
                     auto albedo = color::random(0.5, 1);
                     auto fuzz = random_double(0, 0.5);
-                    sphere_material = make_shared<metal>(albedo, fuzz);
+                    sphere_material = make_shared<specular>(albedo, fuzz);
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
-                } 
-                
+                }
+
                 else {
                     // glass
                     sphere_material = make_shared<dielectric>(1.5);
@@ -62,10 +51,10 @@ void bouncing_spheres() {
     auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
     world.add(make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
 
-    auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
+    auto material3 = make_shared<specular>(color(0.7, 0.6, 0.5), 0.0);
     world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
-    world = hittable_list(make_shared<bvh_node>(world));
+    world = world(make_shared<bvh_node>(world));
 
     camera cam;
 
@@ -87,7 +76,7 @@ void bouncing_spheres() {
 }
 
 void checkered_spheres() {
-    hittable_list world;
+    world world;
 
     auto checker = make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
 
@@ -132,13 +121,13 @@ void earth() {
 
     cam.defocus_angle = 0;
 
-    cam.render(hittable_list(globe));
+    cam.render(world(globe));
 }
 
 void perlin_spheres() {
-    hittable_list world;
+    world world;
 
-    auto pertext = make_shared<noise_texture>(4);
+    auto pertext = make_shared<perlin_noise>(4);
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(pertext)));
     world.add(make_shared<sphere>(point3(0,2,0), 2, make_shared<lambertian>(pertext)));
 
@@ -161,7 +150,7 @@ void perlin_spheres() {
 }
 
 void quads() {
-    hittable_list world;
+    world world;
 
     // Materials
     auto left_red     = make_shared<lambertian>(color(1.0, 0.2, 0.2));
@@ -196,13 +185,13 @@ void quads() {
 }
 
 void simple_light() {
-    hittable_list world;
+    world world;
 
-    auto pertext = make_shared<noise_texture>(4);
+    auto pertext = make_shared<perlin_noise>(4);
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(pertext)));
     world.add(make_shared<sphere>(point3(0,2,0), 2, make_shared<lambertian>(pertext)));
 
-    auto difflight = make_shared<diffuse_light>(color(4,4,4));
+    auto difflight = make_shared<emissive>(color(4,4,4));
     world.add(make_shared<sphere>(point3(0,7,0), 2, difflight));
     world.add(make_shared<quad>(point3(3,1,-2), vec3(2,0,0), vec3(0,2,0), difflight));
 
@@ -225,12 +214,12 @@ void simple_light() {
 }
 
 void cornell_box() {
-    hittable_list world;
+    world world;
 
     auto red   = make_shared<lambertian>(color(.65, .05, .05));
     auto white = make_shared<lambertian>(color(.73, .73, .73));
     auto green = make_shared<lambertian>(color(.12, .45, .15));
-    auto light = make_shared<diffuse_light>(color(15, 15, 15));
+    auto light = make_shared<emissive>(color(15, 15, 15));
 
     world.add(make_shared<quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), green));
     world.add(make_shared<quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), red));
@@ -268,12 +257,12 @@ void cornell_box() {
 }
 
 void cornell_smoke() {
-    hittable_list world;
+    world world;
 
     auto red   = make_shared<lambertian>(color(.65, .05, .05));
     auto white = make_shared<lambertian>(color(.73, .73, .73));
     auto green = make_shared<lambertian>(color(.12, .45, .15));
-    auto light = make_shared<diffuse_light>(color(7, 7, 7));
+    auto light = make_shared<emissive>(color(7, 7, 7));
 
     world.add(make_shared<quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), green));
     world.add(make_shared<quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), red));
@@ -312,9 +301,9 @@ void cornell_smoke() {
 }
 
 void triangle_intersections() {
-    hittable_list world;
+    world world;
 
-    auto triangle_texture = make_shared<diffuse_light>(color(4,4,4));
+    auto triangle_texture = make_shared<emissive>(color(4,4,4));
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
@@ -340,7 +329,8 @@ void triangle_intersections() {
 }
 */
 
-int main() {
+int main()
+{
     // A camera with configurable position, orientation, and field of view
     // Anti-aliasing
     // Ray/sphere intersections
@@ -351,6 +341,7 @@ int main() {
     // A spatial subdivision acceleration structure of your choice
     // Specular, diffuse, and dielectric materials (per first volume of Ray Tracing in One Weekend series)
     // Emissive materials (lights)
+    // Initialize Loader
 
     int choice = 0;
 

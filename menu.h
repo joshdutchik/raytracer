@@ -1,7 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include <iostream>
+#include "utility.h"
 #include "basic.h"
 
 inline void displayStarterMenu()
@@ -17,7 +17,7 @@ inline void BFOptions()
 {
     int choice = 0;
 
-    while (choice != 11)
+    while (choice != 8)
     {
         std::cin >> choice;
 
@@ -49,22 +49,22 @@ inline void BFOptions()
             load_textures();
             break;
         case 6:
-            // need
+            std::cout << "Load and Render Trianlge Meshes";
+            std::cout << "\n";
+            triangle_meshes();
             break;
         case 7:
-            // need
+            std::cout << "Specular, diffuse, and dielectric materials";
+            std::cout << "\n";
+            materials();
             break;
         case 8:
-            // need
+            std::cout << "Emissive materials";
+            std::cout << "\n";
+            lights();
             break;
         case 9:
-            // need
             break;
-        case 10:
-            // need
-            break;
-        case 11:
-            return;
         default:
             std::cout << "Invalid choice, please select a valid option: ";
             continue;
@@ -108,16 +108,20 @@ inline void EFOptions(int choice)
     switch (choice)
     {
     case 1:
-        // need
+        std::cout << "Quads";
+        std::cout << "\n";
         break;
     case 2:
-        // need
+        std::cout << "Motion blur";
+        std::cout << "\n";
         break;
     case 3:
-        // need
+        std::cout << "Perlin noise";
+        std::cout << "\n";
         break;
     case 4:
-        // need
+        std::cout << "Volume rendering";
+        std::cout << "\n";
         break;
     case 5:
         displayStarterMenu();

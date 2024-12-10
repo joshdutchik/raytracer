@@ -1,8 +1,8 @@
 #ifndef QUAD_H
 #define QUAD_H
 
-#include "hittable.h"
-#include "hittable_list.h"
+#include "utility.h"
+#include "world.h"
 
 class quad : public hittable
 {
@@ -10,6 +10,20 @@ public:
     quad(const point3 &Q, const vec3 &u, const vec3 &v, shared_ptr<material> mat)
         : Q(Q), u(u), v(v), mat(mat)
     {
+        auto n = cross(u, v);
+        normal = unit_vector(n);
+        D = dot(normal, Q);
+        w = n / dot(n, n);
+
+        set_bounding_box();
+    }
+
+    quad(const int differ, const point3 &Q, const point3 &X, const point3 &Y, shared_ptr<material> mat) 
+        : differ(differ), Q(Q), p_X(X), p_Y(Y), mat(mat)
+    {
+        u = vec3(p_X - Q);
+        v = vec3(p_Y - Q);
+
         auto n = cross(u, v);
         normal = unit_vector(n);
         D = dot(normal, Q);
@@ -49,7 +63,9 @@ public:
         auto beta = dot(w, cross(u, planar_hitpt_vector));
 
         if (!is_interior(alpha, beta, rec))
+        {
             return false;
+        }
 
         // Ray hits the 2D shape; set the rest of the hit record and return true.
         rec.t = t;
@@ -75,7 +91,9 @@ public:
     }
 
 private:
+    int differ;
     point3 Q;
+    point3 p_X,p_Y;
     vec3 u, v;
     vec3 w;
     shared_ptr<material> mat;
@@ -84,11 +102,11 @@ private:
     double D;
 };
 
-inline shared_ptr<hittable_list> box(const point3 &a, const point3 &b, shared_ptr<material> mat)
+inline shared_ptr<world> box(const point3 &a, const point3 &b, shared_ptr<material> mat)
 {
     // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
 
-    auto sides = make_shared<hittable_list>();
+    auto sides = make_shared<world>();
 
     // Construct the two opposite vertices with the minimum and maximum coordinates.
     auto min = point3(std::fmin(a.x(), b.x()), std::fmin(a.y(), b.y()), std::fmin(a.z(), b.z()));

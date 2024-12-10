@@ -1,7 +1,7 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include "rtweekend.h"
+#include "utility.h"
 
 class aabb {
   public:

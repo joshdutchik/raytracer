@@ -2,10 +2,9 @@
 #define RTW_STB_IMAGE_H
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
-#include <cstdlib>
-#include <iostream>
+#include "utility.h"
+#include "stb_image.h"
 
 class rtw_image {
   public:

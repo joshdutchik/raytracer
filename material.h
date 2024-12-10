@@ -1,9 +1,8 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "hittable.h"
+#include "utility.h"
 #include "texture.h"
-#include "rtweekend.h"
 
 class material
 {
@@ -22,11 +21,31 @@ public:
   }
 };
 
-class lambertian : public material
+class specular : public material
 {
 public:
-  lambertian(const color &albedo) : tex(make_shared<solid_color>(albedo)) {}
-  lambertian(shared_ptr<texture> tex) : tex(tex) {}
+  specular(const color &albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
+
+  bool scatter(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered)
+      const override
+  {
+    vec3 reflected = reflect(r_in.direction(), rec.normal);
+    reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
+    scattered = ray(rec.p, reflected, r_in.time());
+    attenuation = albedo;
+    return (dot(scattered.direction(), rec.normal) > 0);
+  }
+
+private:
+  color albedo;
+  double fuzz;
+};
+
+class diffuse : public material
+{
+public:
+  diffuse(const color &albedo) : tex(make_shared<solid_color>(albedo)) {}
+  diffuse(shared_ptr<texture> tex) : tex(tex) {}
 
   bool scatter(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered)
       const override
@@ -46,26 +65,6 @@ public:
 
 private:
   shared_ptr<texture> tex;
-};
-
-class metal : public material
-{
-public:
-  metal(const color &albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
-
-  bool scatter(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered)
-      const override
-  {
-    vec3 reflected = reflect(r_in.direction(), rec.normal);
-    reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
-    scattered = ray(rec.p, reflected, r_in.time());
-    attenuation = albedo;
-    return (dot(scattered.direction(), rec.normal) > 0);
-  }
-
-private:
-  color albedo;
-  double fuzz;
 };
 
 class dielectric : public material
@@ -109,11 +108,10 @@ private:
   }
 };
 
-class diffuse_light : public material
+class emissive : public material
 {
 public:
-  diffuse_light(shared_ptr<texture> tex) : tex(tex) {}
-  diffuse_light(const color &emit) : tex(make_shared<solid_color>(emit)) {}
+  emissive(const color &emit) : tex(make_shared<solid_color>(emit)) {}
 
   color emitted(double u, double v, const point3 &p) const override
   {
@@ -124,11 +122,10 @@ private:
   shared_ptr<texture> tex;
 };
 
-class isotropic : public material
+class volume : public material
 {
 public:
-  isotropic(const color &albedo) : tex(make_shared<solid_color>(albedo)) {}
-  isotropic(shared_ptr<texture> tex) : tex(tex) {}
+  volume(const color &albedo) : tex(make_shared<solid_color>(albedo)) {}
 
   bool scatter(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered)
       const override

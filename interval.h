@@ -1,7 +1,7 @@
 #ifndef INTERVAL_H
 #define INTERVAL_H
 
-#include <limits> // For std::numeric_limits
+#include "utility.h"
 
 class interval {
   public:
