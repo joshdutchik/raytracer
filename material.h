@@ -1,54 +1,77 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+// header file for an object's material and helps calculate either the emitted color or scattered color
+// depending on the material type
+
+// include
 #include "utility.h"
 #include "texture.h"
 
+// material
 class material
 {
 public:
-  virtual ~material() = default;
-
+  // function to determine the color that is emitted off the object material
   virtual color emitted(double u, double v, const point3 &p) const
   {
     return color(0, 0, 0);
   }
 
-  virtual bool scatter(
-      const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const
+  // function to determine if the ray is scattered off the object or not
+  virtual bool scatter(const ray &r_in, const place_hit &rec, color &attenuation, ray &scattered) const
   {
     return false;
   }
 };
 
+// specular
 class specular : public material
 {
 public:
-  specular(const color &albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
-
-  bool scatter(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered)
-      const override
+  // constructor for specular material given a color and a "fuzz" value
+  specular(const color &solid_c, double spec_fuzz) : solid_c(solid_c)
   {
-    vec3 reflected = reflect(r_in.direction(), rec.normal);
-    reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
-    scattered = ray(rec.p, reflected, r_in.time());
-    attenuation = albedo;
+    if (spec_fuzz > 1)
+    {
+      fuzz = 1;
+    }
+
+    else
+    {
+      fuzz = spec_fuzz;
+    }
+  }
+
+  // function to determine if the ray will scatter
+  bool scatter(const ray &r_in, const place_hit &rec, color &attenuation, ray &scattered) const override
+  {
+    vec3 vec_ref = reflect(r_in.direction(), rec.normal);
+
+    vec_ref = unit_vector(vec_ref) + (fuzz * random_unit_vector());
+    scattered = ray(rec.p, vec_ref, r_in.time());
+    attenuation = solid_c;
+
     return (dot(scattered.direction(), rec.normal) > 0);
   }
 
 private:
-  color albedo;
   double fuzz;
+  color solid_c;
 };
 
+// diffuse
 class diffuse : public material
 {
 public:
-  diffuse(const color &albedo) : tex(make_shared<solid_color>(albedo)) {}
+  // constructor to add a diffuse material with only a color
+  diffuse(const color &solid_c) : tex(make_shared<solid_color>(solid_c)) {}
+
+  // constructor to create a diffuse object with the given texture
   diffuse(shared_ptr<texture> tex) : tex(tex) {}
 
-  bool scatter(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered)
-      const override
+  // scatter function
+  bool scatter(const ray &r_in, const place_hit &rec, color &attenuation, ray &scattered) const override
   {
     auto scatter_direction = rec.normal + random_unit_vector();
 
@@ -67,52 +90,68 @@ private:
   shared_ptr<texture> tex;
 };
 
+// dielectric
 class dielectric : public material
 {
 public:
+  // constructor for a dielectric material on an object
   dielectric(double refraction_index) : refraction_index(refraction_index) {}
 
-  bool scatter(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered)
-      const override
+  // scatter function
+  bool scatter(const ray &r_in, const place_hit &rec, color &attenuation, ray &scattered) const override
   {
+    vec3 direction;
     attenuation = color(1.0, 1.0, 1.0);
-    double ri = rec.front_face ? (1.0 / refraction_index) : refraction_index;
+    double ri = refraction_index;
+
+    if (rec.front_face)
+    {
+      ri = 1.0 / refraction_index;
+    }
 
     vec3 unit_direction = unit_vector(r_in.direction());
+
     double cos_theta = std::fmin(dot(-unit_direction, rec.normal), 1.0);
     double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
 
-    bool cannot_refract = ri * sin_theta > 1.0;
-    vec3 direction;
+    bool unrefractable = ri * sin_theta > 1.0;
 
-    if (cannot_refract || reflectance(cos_theta, ri) > random_double())
+    if (unrefractable || reflectance(cos_theta, ri) > random_double())
+    {
       direction = reflect(unit_direction, rec.normal);
+    }
+
     else
+    {
       direction = refract(unit_direction, rec.normal, ri);
+    }
 
     scattered = ray(rec.p, direction, r_in.time());
+
     return true;
   }
 
 private:
-  // Refractive index in vacuum or air, or the ratio of the material's refractive index over
-  // the refractive index of the enclosing media
   double refraction_index;
 
+  // helper function to help calculate reflectance
   static double reflectance(double cosine, double refraction_index)
   {
-    // Use Schlick's approximation for reflectance.
     auto r0 = (1 - refraction_index) / (1 + refraction_index);
     r0 = r0 * r0;
+
     return r0 + (1 - r0) * std::pow((1 - cosine), 5);
   }
 };
 
+// emissive
 class emissive : public material
 {
 public:
+  // constructor for light material given a color
   emissive(const color &emit) : tex(make_shared<solid_color>(emit)) {}
 
+  // emitted function
   color emitted(double u, double v, const point3 &p) const override
   {
     return tex->value(u, v, p);
@@ -122,16 +161,19 @@ private:
   shared_ptr<texture> tex;
 };
 
-class volume : public material
+// volume material
+class volume_mat : public material
 {
 public:
-  volume(const color &albedo) : tex(make_shared<solid_color>(albedo)) {}
+  // constructor for volume material with a solid color
+  volume_mat(const color &solid_c) : tex(make_shared<solid_color>(solid_c)) {}
 
-  bool scatter(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered)
-      const override
+  // scatter function
+  bool scatter(const ray &r_in, const place_hit &rec, color &attenuation, ray &scattered) const override
   {
     scattered = ray(rec.p, random_unit_vector(), r_in.time());
     attenuation = tex->value(rec.u, rec.v, rec.p);
+
     return true;
   }
 

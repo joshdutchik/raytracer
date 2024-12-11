@@ -1,9 +1,13 @@
 #ifndef MENU_H
 #define MENU_H
 
+// header file for menu used to find the wanted input
+
+// include
 #include "utility.h"
 #include "basic.h"
 
+// function for display of starter menu
 inline void displayStarterMenu()
 {
     std::cout << "===== Josh Dutchik's COMS 336 Raytracer =====" << std::endl;
@@ -13,6 +17,7 @@ inline void displayStarterMenu()
     std::cout << "Select an option (1-3): ";
 }
 
+// basic menu options
 inline void BFOptions()
 {
     int choice = 0;
@@ -74,6 +79,7 @@ inline void BFOptions()
     }
 }
 
+// basic functionalities display menu
 inline void displayBFMenu()
 {
     std::cout << "\n";
@@ -92,6 +98,49 @@ inline void displayBFMenu()
     BFOptions();
 }
 
+// extra functionalities options
+inline void EFOptions()
+{
+    int choice = 0;
+
+    while (choice != 5)
+    {
+        std::cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            std::cout << "Quads";
+            std::cout << "\n";
+            quads();
+            break;
+        case 2:
+            std::cout << "Motion blur";
+            std::cout << "\n";
+            motion_blur();
+            break;
+        case 3:
+            std::cout << "Perlin noise";
+            std::cout << "\n";
+            perlin_noise_example();
+            break;
+        case 4:
+            std::cout << "Volume rendering";
+            std::cout << "\n";
+            volume_rendering();
+            break;
+        case 5:
+            break;
+        default:
+            std::cout << "Invalid choice, please select a valid option." << std::endl;
+            continue;
+        }
+
+        return;
+    }
+}
+
+// extra functionalites menu
 inline void displayEFMenu()
 {
     std::cout << "===== Extra Functionalites =====" << std::endl;
@@ -101,34 +150,8 @@ inline void displayEFMenu()
     std::cout << "4. Volume rendering (10)" << std::endl;
     std::cout << "5: Back" << std::endl;
     std::cout << "Select an option (1-5): ";
+
+    EFOptions();
 }
 
-inline void EFOptions(int choice)
-{
-    switch (choice)
-    {
-    case 1:
-        std::cout << "Quads";
-        std::cout << "\n";
-        break;
-    case 2:
-        std::cout << "Motion blur";
-        std::cout << "\n";
-        break;
-    case 3:
-        std::cout << "Perlin noise";
-        std::cout << "\n";
-        break;
-    case 4:
-        std::cout << "Volume rendering";
-        std::cout << "\n";
-        break;
-    case 5:
-        displayStarterMenu();
-        break;
-    default:
-        std::cout << "Invalid choice, please select a valid option." << std::endl;
-    }
-}
-
-#endif // MENU_H
+#endif

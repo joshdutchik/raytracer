@@ -1,58 +1,69 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "utility.h"
-#include "rtw_stb_image.h"
+// header for the texture in material
 
+// include
+#include "utility.h"
+#include "image_loader.h"
+
+// texture
 class texture
 {
-
 public:
   virtual color value(double u, double v, const point3 &p) const = 0;
 };
 
+// solid color texture
 class solid_color : public texture
 {
 public:
-  solid_color(const color &albedo) : albedo(albedo) {}
+  // constructor for with color class
+  solid_color(const color &solid_c) : solid_c(solid_c) {}
+
+  // constructor for with rgb values
   solid_color(double red, double green, double blue) : solid_color(color(red, green, blue)) {}
 
+  // function to return color
   color value(double u, double v, const point3 &p) const override
   {
-    return albedo;
+    return solid_c;
   }
 
 private:
-  color albedo;
+  color solid_c;
 };
 
+// sunset texture
 class sunset : public texture
 {
 public:
+  // constructor for sunset with max and min height of the object
   sunset(double max, double min) : max(max), min(min) {}
 
+  // get color value
   color value(double u, double v, const point3 &p) const override
   {
-    // Normalize theta to range [0, 1]
+    // normalize the y value between 0,1
     double r, g, b;
     double t = (p.y() - min) / (max - min);
 
-    // Gradient colors
+    // if bottom half of the shape
     if (t < 0.5)
     {
-      // Bottom to middle (red to pink)
+      // red to pink
       r = 1.0;
-      g = t * 2.0; // Interpolates green from 0 to 1
-      b = t * 0.8; // Interpolates blue from 0 to 0.8
+      g = t * 2.0;
+      b = t * 0.8;
     }
 
     else
     {
-      // Middle to top (pink to dark blue)
-      t = (t - 0.5) * 2.0; // Re-normalize t to [0, 1]
-      r = 1.0 - t;         // Red fades out
-      g = 1.0 - t * 0.7;   // Green fades to 0.3
-      b = 0.8 + t * 0.2;   // Blue intensifies
+      // pink to dark blue
+      t = (t - 0.5) * 2.0;
+      r = 1.0 - t;
+      g = 1.0 - t * 0.7;
+      b = 0.8 + t * 0.2;
     }
 
     return color(r, g, b);
@@ -62,17 +73,21 @@ private:
   double max, min;
 };
 
+// rainbow texture
 class rainbow : public texture
 {
 public:
+  // constructor for rainbow using max and min height of the shapes
   rainbow(double max, double min) : max(max), min(min) {}
 
+  // return the color value
   color value(double u, double v, const point3 &p) const override
   {
-    double boundary = (max-min) / 7;
-
+    // split up color values into seven groups
+    double boundary = (max - min) / 7;
     int rainbow_color_value = 6;
 
+    // sort y values into the right group
     for (int i = 1; i <= 7; i++)
     {
       if (p.y() < ((boundary * i) + min))
@@ -82,29 +97,30 @@ public:
       }
     }
 
+    // apply the correct color
     switch (rainbow_color_value)
     {
     case 0:
-      // red
-      return color(2.55, 0, 0);
+      // violet
+      return color(1.48, 0, 2.11);
     case 1:
-      // orange
-      return color(2.55, 1.27, 0);
+      // indigo
+      return color(.75, 0, 1.3);
     case 2:
-      // yellow
-      return color(2.55, 2.55, 0);
+      // blue
+      return color(0, 0, 2.55);
     case 3:
       // green
       return color(0, 2.55, 0);
     case 4:
-      // blue
-      return color(0, 0, 2.55);
+      // yellow
+      return color(2.55, 2.55, 0);
     case 5:
-      // indigo
-      return color(.75, 0, 1.3);
+      // orange
+      return color(2.55, 1.27, 0);
     case 6:
-      // violet
-      return color(1.48, 0, 2.11);
+      // reds
+      return color(2.55, 0, 0);
     default:
       // gray
       return color(2.55, 0, 2.55);
@@ -115,24 +131,23 @@ private:
   double max, min;
 };
 
+// custom image texture
 class image_texture : public texture
 {
 public:
+  // constructor for taking a file name and using it as the  texture
   image_texture(const char *filename) : image(filename) {}
 
+  // return the color value
   color value(double u, double v, const point3 &p) const override
   {
-    // debug with pink color
-    if (image.height() <= 0)
-    {
-      return color(2.55, 2.09, 2.2);
-    }
-
+    // calculate correct color value using the image loader
     u = interval(0, 1).clamp(u);
     v = 1.0 - interval(0, 1).clamp(v);
 
     auto i = int(u * image.width());
     auto j = int(v * image.height());
+
     auto pixel = image.pixel_data(i, j);
     auto color_scale = 1.0 / 255.0;
 
@@ -140,35 +155,41 @@ public:
   }
 
 private:
-  rtw_image image;
+  image_loader image;
 };
 
+// hashed texture
 class hashed : public texture
 {
 public:
-  hashed(color scaled) : scaled(scaled)
+  // constructor for hashed texture with given color
+  hashed(color solid_c) : solid_c(solid_c)
   {
     for (int i = 0; i < point_count; i++)
     {
       randfloat[i] = random_double();
     }
 
+    // generate hashes
     generate_hash(hash_x);
     generate_hash(hash_y);
     generate_hash(hash_z);
   }
 
+  // return the color value
   color value(double u, double v, const point3 &p) const override
   {
+    // box each pixel value into boxes
     auto i = int(4 * p.x()) & 255;
     auto j = int(4 * p.y()) & 255;
     auto k = int(4 * p.z()) & 255;
 
-    return scaled * randfloat[hash_x[i] ^ hash_y[j] ^ hash_z[k]];
+    // return solid_c color value
+    return solid_c * randfloat[hash_x[i] ^ hash_y[j] ^ hash_z[k]];
   }
 
 private:
-  color scaled;
+  color solid_c;
 
   static const int point_count = 256;
   double randfloat[point_count];
@@ -177,6 +198,7 @@ private:
   int hash_y[point_count];
   int hash_z[point_count];
 
+  // helper function to help generate hash
   static void generate_hash(int *p)
   {
     for (int i = 0; i < point_count; i++)
@@ -194,20 +216,23 @@ private:
   }
 };
 
+// perlin noise texture
 class perlin_noise : public texture
 {
 public:
-  perlin_noise(double scale, color scaled) : scale(scale), scaled(scaled) {}
+  // constructor for perline noise given a scale and a color to solid_c
+  perlin_noise(double scale, color solid_c) : scale(scale), solid_c(solid_c) {}
 
+  // return the color value
   color value(double u, double v, const point3 &p) const override
   {
-    return scaled * (1 + std::sin(scale * p.z() + 10 * noise.turb(p, 7)));
+    return solid_c * (1 + std::sin(scale * p.z() + 10 * noise.create_turbulence(p, 7)));
   }
 
 private:
-  perlin noise;
   double scale;
-  color scaled;
+  perlin noise;
+  color solid_c;
 };
 
 #endif

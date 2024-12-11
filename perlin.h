@@ -1,24 +1,30 @@
 #ifndef PERLIN_H
 #define PERLIN_H
 
+// header file for perlin noise creation
+
+// include
 #include "utility.h"
 
+// perlin
 class perlin
 {
 public:
+    // constructor for the perlin texture
     perlin()
     {
-        for (int i = 0; i < point_count; i++)
+        for (int i = 0; i < number_of_points; i++)
         {
             randvec[i] = unit_vector(vec3::random(-1, 1));
         }
 
-        perlin_generate_perm(perm_x);
-        perlin_generate_perm(perm_y);
-        perlin_generate_perm(perm_z);
+        generate_permute(perm_x);
+        generate_permute(perm_y);
+        generate_permute(perm_z);
     }
 
-    double noise(const point3 &p) const
+    // function to create the noise
+    double generate_noise(const point3 &p) const
     {
         auto u = p.x() - std::floor(p.x());
         auto v = p.y() - std::floor(p.y());
@@ -30,16 +36,21 @@ public:
         vec3 c[2][2][2];
 
         for (int di = 0; di < 2; di++)
+        {
             for (int dj = 0; dj < 2; dj++)
+            {
                 for (int dk = 0; dk < 2; dk++)
-                    c[di][dj][dk] = randvec[perm_x[(i + di) & 255] ^
-                                            perm_y[(j + dj) & 255] ^
-                                            perm_z[(k + dk) & 255]];
+                {
+                    c[di][dj][dk] = randvec[perm_x[(i + di) & 255] ^ perm_y[(j + dj) & 255] ^ perm_z[(k + dk) & 255]];
+                }
+            }
+        }
 
-        return perlin_interp(c, u, v, w);
+        return interpolation(c, u, v, w);
     }
 
-    double turb(const point3 &p, int depth) const
+    // function to calculate turbulance
+    double create_turbulence(const point3 &p, int depth) const
     {
         auto accum = 0.0;
         auto temp_p = p;
@@ -47,7 +58,7 @@ public:
 
         for (int i = 0; i < depth; i++)
         {
-            accum += weight * noise(temp_p);
+            accum += weight * generate_noise(temp_p);
             weight *= 0.5;
             temp_p *= 2;
         }
@@ -56,21 +67,21 @@ public:
     }
 
 private:
-    static const int point_count = 256;
-    vec3 randvec[point_count];
-    double randfloat[point_count];
-    int perm_x[point_count];
-    int perm_y[point_count];
-    int perm_z[point_count];
+    static const int number_of_points = 256;
+    int perm_x[number_of_points], perm_y[number_of_points], perm_z[number_of_points];
+    double randfloat[number_of_points];
+    vec3 randvec[number_of_points];
 
-    static void perlin_generate_perm(int *p)
+    // function to generate permute
+    static void generate_permute(int *p)
     {
-        for (int i = 0; i < point_count; i++)
+        for (int i = 0; i < number_of_points; i++)
             p[i] = i;
 
-        permute(p, point_count);
+        permute(p, number_of_points);
     }
 
+    // helper function to actually permute
     static void permute(int *p, int n)
     {
         for (int i = n - 1; i > 0; i--)
@@ -82,7 +93,8 @@ private:
         }
     }
 
-    static double perlin_interp(const vec3 c[2][2][2], double u, double v, double w)
+    // interpolation function
+    static double interpolation(const vec3 c[2][2][2], double u, double v, double w)
     {
         auto uu = u * u * (3 - 2 * u);
         auto vv = v * v * (3 - 2 * v);
@@ -90,12 +102,16 @@ private:
         auto accum = 0.0;
 
         for (int i = 0; i < 2; i++)
+        {
             for (int j = 0; j < 2; j++)
+            {
                 for (int k = 0; k < 2; k++)
                 {
                     vec3 weight_v(u - i, v - j, w - k);
                     accum += (i * uu + (1 - i) * (1 - uu)) * (j * vv + (1 - j) * (1 - vv)) * (k * ww + (1 - k) * (1 - ww)) * dot(c[i][j][k], weight_v);
                 }
+            }
+        }
 
         return accum;
     }
