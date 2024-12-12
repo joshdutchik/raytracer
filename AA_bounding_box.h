@@ -1,5 +1,5 @@
 #ifndef AA_BOUNDING_BOX_H
-#define AA_BOUNDING BOX_H
+#define AA_BOUNDING_BOX_H
 
 // header file for the axis-aligned bounding box
 
@@ -56,8 +56,8 @@ public:
         return x;
     }
 
-    // function to see if bounding box has been hit
-    bool hit(const ray &r, interval ray_t) const
+    // function to see if bounding box has been intersect
+    bool intersect(const ray &r, interval ray_t) const
     {
         const point3 &ray_orig = r.origin();
         const vec3 &ray_dir = r.direction();

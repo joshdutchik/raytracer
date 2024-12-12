@@ -13,6 +13,7 @@
 #include "quad.h"
 #include "triangle.h"
 #include "object.h"
+#include "ssas.h"
 
 // configurable camera
 void configurable_camera()
@@ -145,7 +146,7 @@ void triangle_meshes()
 
     // load objects
     object loaded_mesh = object("Objects/tree.obj");
-    loaded_mesh.create_object(&scene, point3(0, 0, 0));
+    loaded_mesh.create_object(&scene, point3(0, 0, 0), 0.1);
 
     // render
     cam.render(scene, "triangle-mesh.ppm");
@@ -268,13 +269,129 @@ void volume_rendering()
     cam.configure(20, point3(20, 3, 6), point3(0, 2, 0), vec3(0, 1, 0));
 
     // add smoke
-    auto white = make_shared<diffuse>(color(0, 0,2.04));
+    auto white = make_shared<diffuse>(color(0, 0, 2.04));
     shared_ptr<hittable> smoke_sphere = make_shared<sphere>(point3(0, 1.5, 0), 2, white);
-    
+
     scene.add_volume(smoke_sphere, .01, "volume", texture_vector(0, 0, 0));
 
     // render
     cam.render(scene, "volume.ppm");
+}
+
+// final render
+void final_render()
+{
+    // create scene
+    world scene;
+
+    // camera settings
+    camera cam(1024, 576, color(0, 0, .01));
+    cam.configure(90, point3(0, 1, 2), point3(0, 8, -20), vec3(0, 1, 0));
+
+    // PATHS //////////////////////////////////////////////////////////////////////////
+    // add paths
+    texture_vector path_tv = texture_vector(102, 51, 0);
+
+    // main path
+    scene.add_quad(point3(-2, 0, 2), vec3(4, 0, 0), vec3(0, 0, -50), "diffuse", path_tv);
+
+    // left path segments
+    scene.add_quad(point3(-2, 0, -7), vec3(0, 0, -2), vec3(-10, 0, 0), "diffuse", path_tv);
+    scene.add_quad(point3(-2, 0, -16), vec3(0, 0, -2), vec3(-10, 0, 0), "diffuse", path_tv);
+
+    // right path segments
+    scene.add_quad(point3(2, 0, -7), vec3(0, 0, -2), vec3(10, 0, 0), "diffuse", path_tv);
+    scene.add_quad(point3(2, 0, -16), vec3(0, 0, -2), vec3(10, 0, 0), "diffuse", path_tv);
+
+    // EARTH /////////////////////////////////////////////////////////////////////////////
+    // the earth
+    texture_vector grass = texture_vector(51, 153, 51, 0, 0, 3);
+    scene.add_sphere(point3(0, -9999.9, 0), 9999.9, "diffuse", grass);
+
+    // HOUSES ////////////////////////////////////////////////////////////////////////////
+    // add houses
+    texture_vector house_tv = texture_vector(128, 0, 0);
+
+    // roof texture
+    texture_vector roof_tv(0, 0, 203);
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // left three houses
+    // left front ///////////////////////
+    scene.add_quad(point3(-3, 0, -1), vec3(0, 0, -5), vec3(0, 4, 0), "diffuse", house_tv);
+    scene.add_quad(point3(-3, 0, -1), vec3(-5, 0, 0), vec3(0, 4, 0), "diffuse", house_tv);
+
+    // door
+    scene.add_quad(point3(-3, 0, -2.5), vec3(0, 0, -1), vec3(0, 2, 0), "emissive", texture_vector(204, 204, 0));
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // left middle ///////////////////////
+    scene.add_quad(point3(-3, 0, -10), vec3(0, 0, -5), vec3(0, 4, 0), "diffuse", house_tv);
+    scene.add_quad(point3(-3, 0, -10), vec3(-5, 0, 0), vec3(0, 4, 0), "diffuse", house_tv);
+
+    // door
+    scene.add_quad(point3(-3, 0, -11.5), vec3(0, 0, -1), vec3(0, 2, 0), "emissive", texture_vector(204, 204, 0));
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // left back ///////////////////////
+    scene.add_quad(point3(-3, 0, -19), vec3(0, 0, -5), vec3(0, 4, 0), "diffuse", house_tv);
+    scene.add_quad(point3(-3, 0, -19), vec3(-5, 0, 0), vec3(0, 4, 0), "diffuse", house_tv);
+
+    // door
+    scene.add_quad(point3(-3, 0, -20.5), vec3(0, 0, -1), vec3(0, 2, 0), "emissive", texture_vector(204, 204, 0));
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // right three houses
+    // right front ///////////////////////
+    scene.add_quad(point3(3, 0, -1), vec3(0, 0, -5), vec3(0, 4, 0), "diffuse", house_tv);
+    scene.add_quad(point3(3, 0, -1), vec3(5, 0, 0), vec3(0, 4, 0), "diffuse", house_tv);
+
+    // door
+    scene.add_quad(point3(3, 0, -2.5), vec3(0, 0, -1), vec3(0, 2, 0), "emissive", texture_vector(204, 204, 0));
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // right middle ///////////////////////
+    scene.add_quad(point3(3, 0, -10), vec3(0, 0, -5), vec3(0, 4, 0), "diffuse", house_tv);
+    scene.add_quad(point3(3, 0, -10), vec3(5, 0, 0), vec3(0, 4, 0), "diffuse", house_tv);
+
+    // door
+    scene.add_quad(point3(3, 0, -11.5), vec3(0, 0, -1), vec3(0, 2, 0), "emissive", texture_vector(204, 204, 0));
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // right back ///////////////////////
+    scene.add_quad(point3(3, 0, -19), vec3(0, 0, -5), vec3(0, 4, 0), "diffuse", house_tv);
+    scene.add_quad(point3(3, 0, -19), vec3(5, 0, 0), vec3(0, 4, 0), "diffuse", house_tv);
+
+    // door
+    scene.add_quad(point3(3, 0, -20.5), vec3(0, 0, -1), vec3(0, 2, 0), "emissive", texture_vector(204, 204, 0));
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // CASTLE /////////////////////////////////////////////////////////////////////////////
+    // stand
+    scene.add_sphere(point3(0, -4, -40), 6, "diffuse", texture_vector(102, 51, 0));
+
+    // castle
+    // add object
+
+    // SKY ////////////////////////////////////////////////////////////////////////////////
+    // sun
+    scene.add_sphere(point3(0, 55, -40), 30, "emissive", texture_vector(255, 255, 50));
+
+    // PEOPLE //////////////////////////////////////////////////////////////////////////////
+
+    // OPTIMIZE w/ SSAS
+    //scene = world(make_shared<spatial_sub_acc_struct>(scene));
+
+    // render
+    cam.render(scene, "final-render.ppm");
 }
 
 #endif

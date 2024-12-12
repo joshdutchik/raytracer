@@ -17,31 +17,31 @@ public:
     density = -1 / dens;
   }
 
-  // function to detect if ray has hit volume object
-  bool hit(const ray &r, interval ray_t, place_hit &rec) const override
+  // function to detect if ray has intersect volume object
+  bool intersect(const ray &r, interval ray_t, place_hit &rec) const override
   {
     place_hit rec1, rec2;
 
-    // make sure volume object has been hit, if no return false
-    if (!fitted_object->hit(r, interval::universe, rec1))
+    // make sure volume object has been intersect, if no return false
+    if (!fitted_object->intersect(r, interval::universe, rec1))
     {
       return false;
     }
 
-    // make sure volume object has been hit, if no return false
-    if (!fitted_object->hit(r, interval(rec1.t + 0.0001, infinity), rec2))
+    // make sure volume object has been intersect, if no return false
+    if (!fitted_object->intersect(r, interval(rec1.t + 0.0001, infinity), rec2))
     {
       return false;
     }
 
     // if statements to calculate the scatter point of the volume, as density increases so does likelihood
-    // set record to new min if hit
+    // set record to new min if intersect
     if (rec1.t < ray_t.min)
     {
       rec1.t = ray_t.min;
     }
 
-    // set record to new max if hit
+    // set record to new max if intersect
     if (rec2.t > ray_t.max)
     {
       rec2.t = ray_t.max;
@@ -69,7 +69,7 @@ public:
       return false;
     }
 
-    // set the point of hit variables
+    // set the point of intersect variables
     rec.t = rec1.t + hit_distance / ray_length;
     rec.p = r.at(rec.t);
     rec.normal = vec3(1, 0, 0);

@@ -1,7 +1,7 @@
 #ifndef QUAD_H
 #define QUAD_H
 
-// header file for creating quad objects and figuring out if hit or not
+// header file for creating quad objects and figuring out if intersect or not
 
 // include
 #include "utility.h"
@@ -62,12 +62,12 @@ public:
         set_bounding_box();
     }
 
-    // function to determine if quad has been hit
-    bool hit(const ray &r, interval ray_t, place_hit &rec) const override
+    // function to determine if quad has been intersect
+    bool intersect(const ray &r, interval ray_t, place_hit &rec) const override
     {
         auto denom = dot(normal, r.direction());
 
-        // return false if quad has not been hit
+        // return false if quad has not been intersect
         if (std::fabs(denom) < 1e-8)
             return false;
 
@@ -86,13 +86,13 @@ public:
         auto a = dot(w, cross(planar_hitpt_vector, v));
         auto b = dot(w, cross(u, planar_hitpt_vector));
 
-        // figure out if hit point is in quad
-        if (!is_interior(a, b, rec))
+        // figure out if intersect point is in quad
+        if (!in_quad(a, b, rec))
         {
             return false;
         }
 
-        // place hit variables
+        // place intersect variables
         rec.t = t;
         rec.p = intersection;
         rec.mat = mat;
@@ -101,8 +101,8 @@ public:
         return true;
     }
 
-    // function to determine if hit point is in the quad
-    virtual bool is_interior(double a, double b, place_hit &rec) const
+    // function to determine if intersect point is in the quad
+    virtual bool in_quad(double a, double b, place_hit &rec) const
     {
         interval unit_interval = interval(0, 1);
 

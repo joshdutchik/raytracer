@@ -96,7 +96,7 @@ public:
         min_height = get_min_y(Q.y(), X.y(), Y.y());
 
         // create triangle
-        shared_ptr<hittable> triangle_object = make_shared<triangle>(point_q, point_x, point_y, get_material(mat, texture_vector));
+        shared_ptr<hittable> triangle_object = make_shared<triangle>(1, point_q, point_x, point_y, get_material(mat, texture_vector));
 
         // add to world
         objects.push_back(triangle_object);
@@ -166,16 +166,16 @@ public:
     }
 
     // function for detecting hits in the world vector
-    bool hit(const ray &r, interval ray_t, place_hit &rec) const override
+    bool intersect(const ray &r, interval ray_t, place_hit &rec) const override
     {
         place_hit temp;
         bool is_hit = false;
         auto closest = ray_t.max;
 
-        // loop of the objects that are in the world vector and determine it hit
+        // loop of the objects that are in the world vector and determine it intersect
         for (const auto &object : objects)
         {
-            if (object->hit(r, interval(ray_t.min, closest), temp))
+            if (object->intersect(r, interval(ray_t.min, closest), temp))
             {
                 is_hit = true;
                 closest = temp.t;

@@ -26,7 +26,7 @@ int main()
     // activate menu unless quit
     int choice = 0;
 
-    while (choice != 3)
+    while (choice != 4)
     {
         displayStarterMenu();
         std::cin >> choice;
@@ -40,6 +40,9 @@ int main()
             displayEFMenu();
             break;
         case 3:
+            final_render();
+            break;
+        case 4:
             std::cout << "EXITING...";
             break;
         default:

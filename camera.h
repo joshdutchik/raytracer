@@ -145,7 +145,7 @@ private:
 
         place_hit rec;
 
-        if (!world.hit(r, interval(0.001, infinity), rec))
+        if (!world.intersect(r, interval(0.001, infinity), rec))
         {
             return background;
         }

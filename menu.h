@@ -13,8 +13,9 @@ inline void displayStarterMenu()
     std::cout << "===== Josh Dutchik's COMS 336 Raytracer =====" << std::endl;
     std::cout << "1: Basic Functionalites" << std::endl;
     std::cout << "2: Extra Functionalites" << std::endl;
-    std::cout << "3: Quit" << std::endl;
-    std::cout << "Select an option (1-3): ";
+    std::cout << "3: Final Render" << std::endl;
+    std::cout << "4: Quit" << std::endl;
+    std::cout << "Select an option (1-4): ";
 }
 
 // basic menu options

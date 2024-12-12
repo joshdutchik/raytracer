@@ -14,7 +14,7 @@ public:
     // constructor for with given world
     spatial_sub_acc_struct(world list) : spatial_sub_acc_struct(list.objects, 0, list.objects.size()) {}
 
-    // constructor for vector of hittble objects
+    // constructor for vector of hittable objects
     spatial_sub_acc_struct(std::vector<shared_ptr<hittable>> &objects, size_t start, size_t end)
     {
         aa_bound_box = AA_bounding_box::empty;
@@ -60,15 +60,15 @@ public:
         }
     }
 
-    bool hit(const ray &r, interval ray_t, place_hit &rec) const override
+    bool intersect(const ray &r, interval ray_t, place_hit &rec) const override
     {
-        if (!aa_bound_box.hit(r, ray_t))
+        if (!aa_bound_box.intersect(r, ray_t))
         {
             return false;
         }
 
-        bool hit_left = left->hit(r, ray_t, rec);
-        bool hit_right = right->hit(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
+        bool hit_left = left->intersect(r, ray_t, rec);
+        bool hit_right = right->intersect(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
 
         return hit_left || hit_right;
     }

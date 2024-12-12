@@ -51,8 +51,8 @@ public:
     aa_bound_box = AA_bounding_box(box1, box2);
   }
 
-  // function to determine if ray has hit the sphere
-  bool hit(const ray &r, interval ray_t, place_hit &rec) const override
+  // function to determine if ray has intersect the sphere
+  bool intersect(const ray &r, interval ray_t, place_hit &rec) const override
   {
     point3 current_center = center.at(r.time());
     vec3 oc = current_center - r.origin();
@@ -81,7 +81,7 @@ public:
       }
     }
 
-    // place hit variables for further calculations
+    // place intersect variables for further calculations
     rec.t = root;
     rec.p = r.at(rec.t);
     vec3 outward_normal = (rec.p - current_center) / radius;

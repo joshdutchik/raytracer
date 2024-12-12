@@ -1,7 +1,7 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
-// header file to define how an object should react when hit by a ray
+// header file to define how an object should react when intersect by a ray
 
 // include
 #include "utility.h"
@@ -31,7 +31,7 @@ public:
 class hittable
 {
 public:
-  virtual bool hit(const ray &r, interval ray_t, place_hit &rec) const = 0;
+  virtual bool intersect(const ray &r, interval ray_t, place_hit &rec) const = 0;
 
   virtual AA_bounding_box bounding_box() const = 0;
 };

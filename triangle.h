@@ -65,11 +65,11 @@ public:
         set_bounding_box();
     }
 
-    bool hit(const ray &r, interval ray_t, place_hit &rec) const override
+    bool intersect(const ray &r, interval ray_t, place_hit &rec) const override
     {
         auto denom = dot(normal, r.direction());
 
-        // return if not hit
+        // return if not intersect
         if (std::fabs(denom) < 1e-8)
         {
             return false;
@@ -89,12 +89,12 @@ public:
         auto a = dot(w, cross(planar, v));
         auto b = dot(w, cross(u, planar));
 
-        if (!is_interior(a, b, rec))
+        if (!in_triangle(a, b, rec))
         {
             return false;
         }
 
-        // set the place hit record
+        // set the place intersect record
         rec.t = t;
         rec.p = intersection;
         rec.mat = mat;
@@ -104,7 +104,7 @@ public:
     }
 
     // see if it hits the triangle, if not return false
-    virtual bool is_interior(double a, double b, place_hit &rec) const
+    virtual bool in_triangle(double a, double b, place_hit &rec) const
     {
         if (a > 0 && b > 0 && (a + b) < 1)
         {
