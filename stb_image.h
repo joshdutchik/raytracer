@@ -4246,7 +4246,7 @@ stbi_inline static int stbi__zhuffman_decode(stbi__zbuf *a, stbi__zhuffman *z)
    if (a->num_bits < 16) {
       if (stbi__zeof(a)) {
          if (!a->hit_zeof_once) {
-            // This is the first time we intersect eof, insert 16 extra padding btis
+            // This is the first time we hit eof, insert 16 extra padding btis
             // to allow us to keep going; if we actually consume any of them
             // though, that is invalid data. This is caught later.
             a->hit_zeof_once = 1;
@@ -4324,7 +4324,7 @@ static int stbi__parse_huffman_block(stbi__zbuf *a)
          if (z == 256) {
             a->zout = zout;
             if (a->hit_zeof_once && a->num_bits < 16) {
-               // The first time we intersect zeof, we inserted 16 extra zero bits into our bit
+               // The first time we hit zeof, we inserted 16 extra zero bits into our bit
                // buffer so the decoder can just do its speculative decoding. But if we
                // actually consumed any of those bits (which is the case when num_bits < 16),
                // the stream actually read past the end so it is malformed.

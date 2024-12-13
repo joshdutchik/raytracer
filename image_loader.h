@@ -1,7 +1,15 @@
 #ifndef IMAGE_LOADER_H
 #define IMAGE_LOADER_H
 
+#ifdef _MSC_VER
+#pragma warning(push, 0)
+#endif
+
 // header file to process the give image and use the stb_image header file to process a custom texture
+
+// define
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_FAILURE_USERMSG
 
 // include
 #include "utility.h"

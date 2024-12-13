@@ -56,10 +56,9 @@ public:
     }
 
     // create object inside the world on the given center point
-    void create_object(world *world, point3 center)
+    void create_object(world *world, point3 center, double scale)
     {
-        // material
-        auto yellow = make_shared<diffuse>(color(1, .5, 0));
+        // default material
         auto blue = make_shared<diffuse>(color(.2, .2, 1));
 
         int face_index = 0;
@@ -75,27 +74,26 @@ public:
                 int face_size = face_vertice_count[face_index];
 
                 point3 one = point3(current_mesh.Vertices[j].Position.X, current_mesh.Vertices[j].Position.Y, current_mesh.Vertices[j].Position.Z);
-                point3 two = point3(current_mesh.Vertices[j + 1].Position.X, current_mesh.Vertices[j + 1].Position.Y, current_mesh.Vertices[j + 1].Position.Z);
-                point3 three = point3(current_mesh.Vertices[j + 2].Position.X, current_mesh.Vertices[j + 2].Position.Y, current_mesh.Vertices[j + 2].Position.Z);
+                one += center;
 
-                one = one + center;
-                two = two + center;
-                three = three + center;
-
-                // poly
-                if (face_size == 4)
+                // loop over face size and get points for each face by splitting into triangles
+                for (int k = 1; k < (face_size-1); k++)
                 {
-                    point3 four = point3(current_mesh.Vertices[j + 3].Position.X, current_mesh.Vertices[j + 3].Position.Y, current_mesh.Vertices[j + 3].Position.Z);
-                    four = four + center;
+                    int two_index = j + k;
+                    int three_index = j + (k + 1);
 
-                    world->add(make_shared<triangle>(1, one, two, four, yellow));
-                    world->add(make_shared<triangle>(1, three, two, four, yellow));
-                }
+                    debugger::getInstance().logToFile(std::to_string(j));
+                    debugger::getInstance().logToFile(std::to_string(two_index));
+                    debugger::getInstance().logToFile(std::to_string(three_index));
+                    debugger::getInstance().logToFile("---------------");
 
-                // triangle
-                else
-                {
-                    world->add(make_shared<triangle>(1, one, two, three, blue));
+                    point3 two = point3(current_mesh.Vertices[two_index].Position.X, current_mesh.Vertices[two_index].Position.Y, current_mesh.Vertices[two_index].Position.Z);
+                    two += center;
+
+                    point3 three = point3(current_mesh.Vertices[three_index].Position.X, current_mesh.Vertices[three_index].Position.Y, current_mesh.Vertices[three_index].Position.Z);
+                    three += center;
+
+                    world->add(make_shared<triangle>(1, one*scale, two*scale, three*scale, blue));
                 }
 
                 j += face_size;

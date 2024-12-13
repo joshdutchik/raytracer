@@ -142,11 +142,14 @@ void triangle_meshes()
 
     // camera settings
     camera cam(400, 225, color(0.70, 0.80, 1.00));
-    cam.configure(110, point3(16, 8, -5), point3(8, 12, 2), vec3(0, 1, 0));
+    cam.configure(90, point3(0, 1, 2), point3(0, 8, -20), vec3(0, 1, 0));
+
+    // stand
+    scene.add_sphere(point3(0, -4, -40), 6, "diffuse", texture_vector(102, 51, 0));
 
     // load objects
-    object loaded_mesh = object("Objects/tree.obj");
-    loaded_mesh.create_object(&scene, point3(0, 0, 0), 0.1);
+    object loaded_mesh = object("Objects/castle.obj");
+    loaded_mesh.create_object(&scene, point3(0, 1.5, -40), 5);
 
     // render
     cam.render(scene, "triangle-mesh.ppm");
@@ -166,10 +169,10 @@ void materials()
     scene.add_sphere(point3(0, 0, -1.2), 0.5, "specular", texture_vector(80, 80, 0));
 
     // diffuse
-    scene.add_sphere(point3(-1, 0, -1), 0.5, "diffuse", texture_vector(10, 20, 50));
+    scene.add_sphere(point3(1, 0, -1), 0.5, "diffuse", texture_vector(40, 20, 10));
 
     // dielectric
-    scene.add_sphere(point3(1, 0, -1), 0.5, "dielectric", texture_vector(0, 0, 0, 0, 1.5));
+    scene.add_sphere(point3(-1, 0, -1), 0.5, "dielectric", texture_vector(0, 0, 0, 0, 1.5));
 
     // render
     cam.render(scene, "materials.ppm");
@@ -207,9 +210,13 @@ void quads()
 
     // texture vector
     texture_vector tv = texture_vector(100, 20, 20);
+    auto isu_texture = make_shared<image_texture>("Textures/iowa-state.png");
+    auto cool_texture = make_shared<image_texture>("Textures/example-texture.png");
 
     // add quads
-    scene.add_quad(point3(-2, -2, 0), vec3(4, 0, 0), vec3(0, 4, 0), "diffuse", tv);
+    scene.add(make_shared<triangle>(point3(-10, 0, 0), vec3(0, 5, 0), vec3(5, 0, 0), make_shared<diffuse>(cool_texture)));
+    scene.add(make_shared<quad>(point3(-2, -2, 0), vec3(4, 0, 0), vec3(0, 4, 0), make_shared<diffuse>(isu_texture)));
+
     scene.add_quad(point3(3, -2, 1), vec3(0, 0, 4), vec3(0, 4, 0), "diffuse", tv);
     scene.add_quad(point3(-2, 3, 1), vec3(4, 0, 0), vec3(0, 0, 4), "diffuse", tv);
 
@@ -231,7 +238,7 @@ void motion_blur()
     texture_vector tv = texture_vector(100, 20, 20);
 
     // add sphere
-    scene.add_moving_sphere(point3(0, 1.5, 0), point3(0, 2, 0), 2, "diffuse", tv);
+    scene.add_moving_sphere(point3(2, 1.5, 0), point3(0, 2, 0), 2, "diffuse", tv);
 
     // render
     cam.render(scene, "motion-blur.ppm");
@@ -343,7 +350,6 @@ void final_render()
     // door
     scene.add_quad(point3(-3, 0, -20.5), vec3(0, 0, -1), vec3(0, 2, 0), "emissive", texture_vector(204, 204, 0));
 
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // right three houses
@@ -386,9 +392,21 @@ void final_render()
     scene.add_sphere(point3(0, 55, -40), 30, "emissive", texture_vector(255, 255, 50));
 
     // PEOPLE //////////////////////////////////////////////////////////////////////////////
+    // diffuse
+    scene.add_sphere(point3(0, 1, 0), 1, "diffuse", texture_vector(1));
+    scene.add_sphere(point3(-1, 1, -3), 1, "diffuse", texture_vector(0, 102, 0));
 
-    // OPTIMIZE w/ SSAS
-    //scene = world(make_shared<spatial_sub_acc_struct>(scene));
+    // custom
+    auto cool_texture = make_shared<image_texture>("Textures/example-texture.png");
+    scene.add(make_shared<sphere>(point3(1, 1, -21), 1, cool_texture));
+
+    // specular
+    scene.add_sphere(point3(0, 1, -11), 1, "specular", texture_vector(80, 80, 0));
+    scene.add_sphere(point3(1, 1, -30), 1, "specular", texture_vector(80, 80, 0));
+
+    // dielectric
+    scene.add_sphere(point3(0, 1, 7), 0.7, "dielectric", texture_vector(0, 0, 0, 0, 0.67));
+    scene.add_sphere(point3(0, 1, 7), 1, "dielectric", texture_vector(0, 0, 0, 0, 1.5));
 
     // render
     cam.render(scene, "final-render.ppm");
